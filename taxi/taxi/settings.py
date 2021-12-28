@@ -11,8 +11,8 @@ https://docs.djangoproject.com/en/3.2/ref/settings/
 """
 
 from pathlib import Path
-import os
-import environ
+import os, datetime, environ
+
 env = environ.Env()
 environ.Env.read_env()
 
@@ -154,3 +154,18 @@ CHANNEL_LAYERS = {
     }
 }
 ASGI_APPLICATION = 'taxi.routing.application'
+
+
+#Server Configuration
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CALSSES': (
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
+        'rest_framework.authentication.SessionAuthentication',
+    )
+}
+
+SIMPLE_JWT = {
+    'ACCESS_TOKEN_LIFETIME': datetime.timedelta(minutes=5),
+    'REFRESH_TOKEN_LIFETIME': datetime.timedelta(days=1),
+    'USER_ID_CLAIM': 'id',
+}
