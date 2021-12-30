@@ -6,7 +6,6 @@ from trips.serializers import *
 class TaxiConsumer(AsyncJsonWebsocketConsumer):
     groups = ['test']
 
-
     @database_sync_to_async
     def _create_trip(self, data):
         serializer = TripSerializer(data=data)
@@ -21,9 +20,17 @@ class TaxiConsumer(AsyncJsonWebsocketConsumer):
     async def create_trip(self, message):
         data =  message.get('data')
         trip = await self._create_trip(data)
+        trip_data = NestedTripSerializer(trip).data
+
+        #Send rider requests to all drivers.
+        await self.channel_layer.group_send(group='drivers', message={
+            'type': 'echo.message',
+            'data': trip_data
+        })
+
         await self.send_json({
             'type': 'echo.message',
-            'data': NestedTripSerializer(trip).data,
+            'data': trip_data,
         })
 
     async def connect(self): # changed
