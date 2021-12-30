@@ -16,6 +16,18 @@ class TaxiConsumer(AsyncJsonWebsocketConsumer):
     def _get_user_group(self, user):
         return user.groups.first().name
 
+    @database_sync_to_async
+    def _get_trip_ids(self, user):
+        user_groups = user.groups.values_list('name', flat=True)
+        if 'driver' in user_groups:
+            trips_ids = user.trips_as_driver.exclude(
+                status=Trip.COMPLETED
+            ).only('id').values_list('id', flat=True)
+        else:
+            trips_ids = user.trips_as_rider.exclude(
+                status=Trip.COMPLETED
+            ).only('id').values_list('id', flat=True)
+        return map(str, trips_ids)
 
     async def create_trip(self, message):
         data =  message.get('data')
@@ -28,12 +40,18 @@ class TaxiConsumer(AsyncJsonWebsocketConsumer):
             'data': trip_data
         })
 
+        #Add rider to trip group
+        await self.channel_layer.group_add(
+            group=f'{trip.id}',
+            channel = self.channel_name
+        )
+
         await self.send_json({
             'type': 'echo.message',
             'data': trip_data,
         })
 
-    async def connect(self): # changed
+    async def connect(self): 
         user = self.scope['user']
         if user.is_anonymous:
             await self.close()
@@ -44,6 +62,13 @@ class TaxiConsumer(AsyncJsonWebsocketConsumer):
                     group = 'drivers',
                     channel = self.channel_name
                 )
+            
+            for trip_id in await self._get_trip_ids(user):
+                await self.channel_layer.group_add(
+                    group = trip_id,
+                    channel = self.channel_name
+                )
+
             await self.accept()
 
     async def disconnect(self, code):
@@ -56,6 +81,12 @@ class TaxiConsumer(AsyncJsonWebsocketConsumer):
                 await self.channel_layer.group_discard(
                     group='drivers',
                     channel=self.channel_name
+                )
+
+            for trip_id in await self._get_trip_ids(user):
+                await self.channel_layer.group_discard(
+                    group= trip_id,
+                    channel = self.channel_name
                 )
         await super().disconnect(code)
 
