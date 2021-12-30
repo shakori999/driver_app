@@ -113,7 +113,7 @@ class TestWebSocket:
         await communicator.send_json_to({
             'type': 'create.trip',
             'data': {
-                'pick_up_address': '123 Main streeet',
+                'pick_up_address': '123 Main Street',
                 'drop_off_address': '456 Piney Road',
                 'rider': user.id,
             },

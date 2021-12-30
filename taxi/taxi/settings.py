@@ -172,3 +172,4 @@ SIMPLE_JWT = {
     'USER_ID_CLAIM': 'id',
 
 }
+os.environ["DJANGO_ALLOW_ASYNC_UNSAFE"] = "true"
