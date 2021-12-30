@@ -11,10 +11,8 @@ https://docs.djangoproject.com/en/3.2/ref/settings/
 """
 
 from pathlib import Path
-import os, datetime, environ
+import os, datetime 
 
-env = environ.Env()
-environ.Env.read_env()
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -86,14 +84,14 @@ WSGI_APPLICATION = 'taxi.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
-        # 'ENGINE': 'django.db.backends.postgresql',
-        # 'NAME': env('PGDATABASE'),
-        # 'USER': env('PGUSER'),
-        # 'PASSWORD': env('PGPASSWORD'),
-        # 'HOST': os.getenv('PGHOST', 'localhost'),
-        # 'PORT': os.getenv('PGPORT', '5432'),
+        # 'ENGINE': 'django.db.backends.sqlite3',
+        # 'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': os.getenv('PGDATABASE', 'taxi'),
+        'USER': os.getenv('PGUSER', 'taxi'),
+        'PASSWORD': os.getenv('PGPASSWORD', 'taxi'),
+        'HOST': os.getenv('PGHOST', 'localhost'),
+        'PORT': os.getenv('PGPORT', '5432'),
     }
 }
 
@@ -147,14 +145,16 @@ AUTH_USER_MODEL = 'trips.User'
 #Channels Config
 REDIS_URL = os.getenv('REDIS_URL', 'redis://localhost:6379')
 
+
 CHANNEL_LAYERS = {
     'default': {
-        'BACKEND': 'chaneels_redis.core.RedisChannelLayer',
+        'BACKEND': 'channels_redis.core.RedisChannelLayer',
         'CONFIG': {
             'hosts': [REDIS_URL],
-        }
-    }
+        },
+    },
 }
+
 ASGI_APPLICATION = 'taxi.routing.application'
 
 
@@ -170,4 +170,5 @@ SIMPLE_JWT = {
     'ACCESS_TOKEN_LIFETIME': datetime.timedelta(minutes=5),
     'REFRESH_TOKEN_LIFETIME': datetime.timedelta(days=1),
     'USER_ID_CLAIM': 'id',
+
 }
