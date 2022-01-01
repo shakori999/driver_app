@@ -173,3 +173,6 @@ SIMPLE_JWT = {
 
 }
 os.environ["DJANGO_ALLOW_ASYNC_UNSAFE"] = "true"
+
+MEDIA_URL = '/media/'
+MEDIA_ROOT = os.path.join(BASE_DIR, '../media')
