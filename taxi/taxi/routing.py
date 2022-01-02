@@ -2,7 +2,7 @@ from django.urls import path
 
 from django.core.asgi import get_asgi_application
 from channels.routing import ProtocolTypeRouter, URLRouter
-from driver_app.taxi.taxi.middleware import TokenAuthMiddlewareStack
+from .middleware import TokenAuthMiddlewareStack
 
 from trips.consumers import TaxiConsumer
 
